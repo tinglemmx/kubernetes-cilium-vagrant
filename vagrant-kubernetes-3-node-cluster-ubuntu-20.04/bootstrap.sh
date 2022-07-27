@@ -43,7 +43,7 @@ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - >/
 apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main" >/dev/null 2>&1
 
 echo "[TASK 7] Install Kubernetes components (kubeadm, kubelet and kubectl)"
-apt install -qq -y kubeadm=1.22.0-00 kubelet=1.22.0-00 kubectl=1.22.0-00 >/dev/null 2>&1
+apt install -qq -y kubeadm=1.24.0-00 kubelet=1.24.0-00 kubectl=1.24.0-00 >/dev/null 2>&1
 
 echo "[TASK 8] Enable ssh password authentication"
 sed -i 's/^PasswordAuthentication .*/PasswordAuthentication yes/' /etc/ssh/sshd_config
@@ -60,3 +60,8 @@ cat >>/etc/hosts<<EOF
 172.16.16.101   kworker1.example.com    kworker1
 172.16.16.102   kworker2.example.com    kworker2
 EOF
+
+echo "[TASK 11] Setted Hugepages"
+sysctl -w vm.nr_hugepages=512
+echo "vm.nr_hugepages=512" >> /etc/sysctl.conf
+service kubelet restart
