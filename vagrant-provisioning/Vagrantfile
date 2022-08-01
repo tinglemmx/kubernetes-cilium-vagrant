@@ -4,7 +4,7 @@
 ENV['VAGRANT_NO_PARALLEL'] = 'yes'
 
 VAGRANT_BOX_W      = "generic/ubuntu2004"
-VAGRANT_BOX_M       = "master/ubuntu2004.box"
+VAGRANT_BOX_M       = "master/ubuntu2004"
 VAGRANT_BOX_VERSION = "0"
 CPUS_MASTER_NODE    = 2
 CPUS_WORKER_NODE    = 1
