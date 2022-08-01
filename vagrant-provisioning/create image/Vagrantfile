@@ -22,8 +22,5 @@ Vagrant.configure('2') do |config|
             l.memory = MASTER_MEMORY_SIZE_GB * 1024
             l.machine_virtual_size = DISK_SIZE_GB
         end
-
-        base_vm.vm.provision :shell, inline: $baseConfigScript
-
     end
 end
