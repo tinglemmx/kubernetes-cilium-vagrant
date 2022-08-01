@@ -130,7 +130,7 @@ kworker2   Ready    <none>          6h59m   v1.24.0   172.16.16.102   <none>    
 ##REMOVE ALL
 * vagrant destroy -f
 * rm -rf ~/.kube
-* mkdir /.kube
+* mkdir ~/.kube
 * rm ~/.ssh/known_hosts
 
 * vbox这边会残留一些接口
