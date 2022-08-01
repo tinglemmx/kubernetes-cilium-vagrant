@@ -64,4 +64,4 @@ EOF
 echo "[TASK 11] Setted Hugepages"
 sysctl -w vm.nr_hugepages=512
 echo "vm.nr_hugepages=512" >> /etc/sysctl.conf
-service kubelet restart
+systemctl restart kubelet

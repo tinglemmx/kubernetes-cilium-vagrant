@@ -118,19 +118,94 @@ root@vpp2:/home/cbcadmin# kubectl get pod -o wide
 NAME                    READY   STATUS    RESTARTS   AGE   IP               NODE       NOMINATED NODE   READINESS GATES
 nginx-8f458dc5b-qd824   1/1     Running   0          28m   192.168.77.129   kworker2   <none>           <none>
 ```
+kubectl get nodes -o wide
+```
+root@vpp2:/home/cbcadmin# kubectl get nodes -o wide
+NAME       STATUS   ROLES           AGE     VERSION   INTERNAL-IP     EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+kmaster    Ready    control-plane   7h18m   v1.24.0   172.16.16.100   <none>        Ubuntu 20.04.4 LTS   5.4.0-122-generic   containerd://1.5.9
+kworker1   Ready    <none>          7h8m    v1.24.0   172.16.16.101   <none>        Ubuntu 20.04.4 LTS   5.4.0-122-generic   containerd://1.5.9
+kworker2   Ready    <none>          6h59m   v1.24.0   172.16.16.102   <none>        Ubuntu 20.04.4 LTS   5.4.0-122-generic   containerd://1.5.9
+```
 
 ##REMOVE ALL
 * vagrant destroy -f
-* rm -rf ~./.kube
-* mkdir ./.kube
-* rm .ssh/known_hosts
+* rm -rf ~/.kube
+* mkdir /.kube
+* rm ~/.ssh/known_hosts
 
 * vbox这边会残留一些接口
 ```
 vboxmanage list hostonlyifs
 vboxmanage hostonlyif remove vboxnet0
 ```
+* 有时候会有ssh non-zero exit status<br>
+在/etc/sudoers 里面 加vagrant ALL=(ALL) NOPASSWD:ALL
+
+#vagrant
+https://www.vagrantup.com/docs/cli/box
+https://www.virtualbox.org/manual/ch08.html#vboxmanage-startvm
+##做个快照
+关机
+也可以用vagrant halt
+```
+root@vpp2:/home/cbcadmin/kubernetes/vagrant-provisioning# vboxmanage controlvm kworker1 acpipowerbutton
+root@vpp2:/home/cbcadmin/kubernetes/vagrant-provisioning# vboxmanage controlvm kworker2 acpipowerbutton
+root@vpp2:/home/cbcadmin/kubernetes/vagrant-provisioning# vboxmanage controlvm kmaster acpipowerbutton 
+vagrant plugin install vagrant-vbox-snapshot
+root@vpp2:/home/cbcadmin/kubernetes/vagrant-provisioning# vboxmanage list runningvms
+root@vpp2:/home/cbcadmin/kubernetes/vagrant-provisioning# vboxmanage list vms
+"kmaster" {348f9e6b-c800-4b91-acb0-df253de36bd7}
+"kworker1" {8d02b0f7-33af-4dd9-88a1-871b382467df}
+"kworker2" {5ef279ee-5907-4253-b799-dca0e8efe0a1}
+```
+做快照
+https://www.vagrantup.com/docs/cli/snapshot
+```
+vagrant snapshot save kmaster kmaster_init
+vagrant snapshot save kworker1 kworker1_init
+vagrant snapshot save kworker2 kworker2_init
+root@vpp2:/home/cbcadmin/kubernetes/vagrant-provisioning# vagrant snapshot list
+==> kmaster: 
+kmaster_init
+==> kworker1: 
+kworker1_init
+==> kworker2: 
+kworker2_init
+```
+开机
+vagrant up
+
+##安装calicoctl
+下载calicoctl
+```
+cd /usr/local/bin/
+curl -L https://github.com/projectcalico/calico/releases/download/v3.23.3/calicoctl-linux-amd64 -o calicoctl
+chmod +x ./calicoctl
 
 
-
-
+```
+#calicoctl
+##配置calicoctl
+创建一个配置文件 指向kubectl的配置文件
+```
+root@vpp2:/home/cbcadmin# cat /etc/calico/calicoctl.cfg
+apiVersion: projectcalico.org/v3
+kind: CalicoAPIConfig
+metadata:
+spec:
+apiVersion: projectcalico.org/v3
+kind: CalicoAPIConfig
+metadata:
+spec:
+  datastoreType: "kubernetes"
+  kubeconfig: "/root/.kube/config"
+```
+##Checking the configuration
+calicoctl get nodes
+```
+root@vpp2:/home/cbcadmin# calicoctl get nodes         
+NAME       
+kmaster    
+kworker1   
+kworker2 
+```
